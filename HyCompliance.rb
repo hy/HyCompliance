@@ -405,7 +405,7 @@ class TheApp < Sinatra::Base
 
 
   #############################################################################
-  # ALARM ROUTES
+  # EXTERNALLY-TRIGGERED EVENT AND ALARM ROUTES
   #############################################################################
   #
   # Whenever we are to check for alarm triggering, someone will 'ping' us,
@@ -608,6 +608,10 @@ class TheApp < Sinatra::Base
     send_SMS_to( params['From'], 'Received blank SMS, . . .  ?' )
   end #do get
 
+  get '/c/hi*' do
+    puts "GREETINGS ROUTE"
+    send_SMS_to( params['From'], 'Hello, and Welcome!' )
+  end #do get
 
   #############################################################################
   # User Role Setting and Configuration Routes
