@@ -1012,7 +1012,7 @@ class TheApp < Sinatra::Base
       blood_sugar_f = Float(params[:captures][0])
       checkpoint_s = params[:captures][1]
 
-      reset_alarm_timer_for( params['From'] )
+      # reset_alarm_timer_for( params['From'] )
       handle_glucose_checkin(blood_sugar_f, checkpoint_s)
 
     rescue Exception => e
@@ -1367,6 +1367,20 @@ class TheApp < Sinatra::Base
     end #def
 
 
+
+    ###########################################################################
+    # App-Specific Helper: Reset Alarm Timer for a ph_num (NOT NOW USED)
+    ###########################################################################
+    def reset_alarm_timer_for( ph_num )
+    where = 'alarm reset helper'
+    begin
+      doc = DB['people'].find_one({'_id' => ph_num })
+      doc['strikes'] = 0
+      doc['timer'] = doc['alarm']
+      DB['people'].save(doc)
+
+      rescue Exception => e;  log_exception( e, where );  end
+    end #def reset alarm timer
 
 
     ###########################################################################
