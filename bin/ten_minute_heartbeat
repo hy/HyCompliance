@@ -1,0 +1,4 @@
+#!/bin/bash
+
+curl http://mighty-plateau-4041.herokuapp.com/ten_minute_heartbeat
+
