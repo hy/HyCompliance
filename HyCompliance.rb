@@ -1824,57 +1824,6 @@ class TheApp < Sinatra::Base
 
 
     ###########################################################################
-    # Check-For-Defeat  Helper
-    ###########################################################################
-    def check_for_defeat( ph_num )
-    puts where = 'check_for_defeat helper'
-    begin
-      msg=''
-      cmd = {
-        aggregate: 'checkins',  pipeline: [
-          {'$match' => {:ID => ph_num}},
-          {'$group' => {:_id => '$ID',:pts_tot => {'$sum'=>'$pts'}}} ]
-      }
-      result = DB.command(cmd)['result'][0]
-      score = result==nil ? DEFAULT_SCORE : result['pts_tot']
-
-      last = last_goal_for( ph_num )
-      
-      if last != nil
-        puts goal = last['goal'] ==nil ? DEFAULT_GOAL : last['goal']
-
-        days_f = (Time.now.to_f - last['utc']) / ONE_DAY
-
-        if ((score+0.001 < goal)&&(days_f > 7.0))
-          msg += " Seven days are up! Set a new goal and try again! You can do it :)  You did earn %0.f pts..." % (score)
-          send_SMS_to( ph_num, msg )
-          msg_caregiver_of( ph_num, msg )
-   
-#       normalize_score_to_zero_for( ph_num )
-          doc = {
-              'ID' => ph_num,
-              'defeat' => score,
-              'pts' => -1 * score, 
-              'utc' => Time.now.to_f
-          }
-          DB['checkins'].insert(doc)
-
-        end
-
-      end #if last
-
-      if last == nil 
-        send_SMS_to( ph_num, "Morning! :)  Text Goal123 to set a goal of 123?" )
-      end #if
-
-    rescue Exception => e
-      log_exception( e, where )
-    end
-
-    end #def
-
-
-    ###########################################################################
     # Check-Progress-at-Midweek  Helper
     ###########################################################################
     def check_progress_midweek( ph_num )
