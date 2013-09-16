@@ -1489,8 +1489,8 @@ class TheApp < Sinatra::Base
       DB['checkins'].insert(doc)
 
       msg = 'Thanks! Got:' +mgdl.floor.to_s+' mg/dL'
-      msg += ', '+when_s+' for your checkin' 
-      msg += ' +' + pts.to_s + ' pts'
+      msg += ' for your '+when_s+' checkin' 
+      msg += ' (+' + pts.to_s + ' pts!)'
 
       if ((mgdl > hi)&&(last_g!=nil))
        if ((last_g['mg'] > hi) && (last_g['utc'] > @now_f-5*ONE_HOUR)) 
