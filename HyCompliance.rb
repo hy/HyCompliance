@@ -596,7 +596,7 @@ class TheApp < Sinatra::Base
     send_SMS_to( params['From'], 'Received blank SMS, . . .  ?' )
   end #do get
 
-  get '/c/hi*' do
+  get '/c/hello*' do
     puts "GREETINGS ROUTE"
     send_SMS_to( params['From'], 'Hello, and Welcome!' )
   end #do get
@@ -1474,7 +1474,7 @@ class TheApp < Sinatra::Base
       else
         if (last_g['mg'] < @this_user['lo'])
           msg_all_caregivers('Your child just rechecked, latest BG: ' +mgdl.to_s)
-          if ((interval_in_hours > 0.00)&&(interval_in_hours < 0.35))
+          if ((interval_in_hours > 0.00)&&(interval_in_hours < 0.6))
             pts +=10.0
           end
         end #if
@@ -1506,7 +1506,7 @@ class TheApp < Sinatra::Base
     # check_for_victory( params['From'] )
 
     rescue Exception => e
-      msg = 'Unable to log glucose'
+      puts msg = 'Unable to log glucose!!!'
       log_exception( e, where )
     end
 
