@@ -80,7 +80,7 @@ class TheApp < Sinatra::Base
       PTS_BONUS_FOR_TIMING = 10
 
       DEFAULT_SCORE = 0 
-      DEFAULT_GOAL = 200.0
+      DEFAULT_GOAL = 500.0
       DEFAULT_PANIC = 24
       DEFAULT_HI = 300.0
       DEFAULT_LO = 70.0
@@ -292,21 +292,9 @@ class TheApp < Sinatra::Base
     if params['From'] != nil
       @this_user = DB['people'].find_one('_id' => params['From'])
 
-      if (@this_user == nil)  #i.e. If they're brand-new, welcome them. . . 
-        doc = {
-         '_id' => params['From'],
-          'alarm' => DEFAULT_PANIC,
-          'timer' => DEFAULT_PANIC,
-          'strikes' => 0,
-          'hi' => DEFAULT_HI,
-          'lo' => DEFAULT_LO
-        }
-        DB['people'].insert(doc)
+      if (@this_user == nil)
+        onboard_a_brand_new_user 
         @this_user = DB['people'].find_one('_id' => params['From'])
-
-        msg = 'Welcome to the experimental DM Type I tracking app!'
-        msg += ' (All data sent or received is public domain.)'
-        reply_via_SMS( msg )
       end #if
 
       puts @this_user
@@ -2022,36 +2010,30 @@ class TheApp < Sinatra::Base
 
 
 
-
+    ###########################################################################
     # Suppose you want to introduce folks to the app by sending them 
     # an SMS . . .  can do!  We might then like to 'recognize' them as they
     # show up / call in . . .   
-
-    def onboarding_helper
+    ###########################################################################
+    def onboard_a_brand_new_user
       where = "HELPER: " + (__method__).to_s 
-      puts where = 'ONBOARDING HELPER'
 
       begin
-        print_diagnostics_on_route_entry
 
-        @this_user = DB['people'].find_one('_id' => params['From'])
-        @now_f = Time.now.to_f
+      doc = {
+         '_id' => params['From'],
+          'alarm' => DEFAULT_PANIC,
+          'timer' => DEFAULT_PANIC,
+          'goal' => DEFAULT_GOAL, 
+          'strikes' => 0,
+          'hi' => DEFAULT_HI,
+          'lo' => DEFAULT_LO
+        }
+        DB['people'].insert(doc)
 
-        if (@this_user == nil)
-          doc = {
-            '_id' => params['From'],
-            'alerts' => 'None'
-          }
-
-          DB['people'].insert(doc)
-          @this_user = DB['people'].find_one('_id' => params['From'])
-
-          msg = 'Welcome to the experimental app!'
-          msg += ' (All data sent or received is public.)'
-          reply_via_SMS( msg )
-        end #if
-
-      puts @this_user
+        msg = 'Welcome to the experimental DM Type I tracking app!'
+        msg += ' (All data sent or received is public domain.)'
+        reply_via_SMS( msg )
 
       rescue Exception => e;  log_exception( e, where );  end
     end
