@@ -1503,7 +1503,7 @@ class TheApp < Sinatra::Base
         schedule_textback_to( params['From'] )
       end
 
-    check_for_victory( params['From'] )
+    # check_for_victory( params['From'] )
 
     rescue Exception => e
       msg = 'Unable to log glucose'
