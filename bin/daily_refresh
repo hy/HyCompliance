@@ -1,0 +1,4 @@
+#!/bin/bash
+
+curl http://pacific-ridge-7904.herokuapp.com/daily_refresh
+

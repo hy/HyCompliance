@@ -1,4 +1,4 @@
 #!/bin/bash
 
-curl http://mighty-plateau-4041.herokuapp.com/ten_minute_heartbeat
+curl http://pacific-ridge-7904.herokuapp.com/ten_minute_heartbeat
 
