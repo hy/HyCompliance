@@ -428,6 +428,44 @@ class TheApp < Sinatra::Base
   end #do tick
 
 
+  get '/hourly_ping' do
+    puts "!!!!!!!!!!!!!!!!!!HOURLY PING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts where = 'HOURLY PING'
+    a = Array.new
+
+    begin
+
+      #DO HOURLY CHECKS HERE
+
+    rescue Exception => e
+      msg = 'Could not complete hourly ping'
+      log_exception( e, where )
+    end
+
+    "One Hour Passes"+a.to_s  # <-- Must return a string for all get req's
+
+  end #do get ping
+
+
+  get '/daily_refresh' do
+    puts "!!!!!!!!!!!!!!!!DAILY REFRESH!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts where = 'DAILY REFRESH'
+    a = Array.new
+
+    begin
+
+     #DO DAILY UPKEEP TASKS HERE
+
+    rescue Exception => e
+      msg = 'Could not complete daily refresh'
+      log_exception( e, where )
+    end
+
+    "One Day Passes"+a.to_s  # <-- Must return a string for all get req's
+
+  end
+
+
 
   #############################################################################
   #                         Google API routes
