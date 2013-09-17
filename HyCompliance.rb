@@ -406,7 +406,7 @@ class TheApp < Sinatra::Base
   #############################################################################
 
   get '/ten_minute_heartbeat' do
-    puts "!!!!!!!!!!!!!!!!!!TEN MINUTE HEARTBEAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts ".................TEN MINUTE HEARTBEAT..............................."
     puts where = 'HEARTBEAT'
 
     begin
@@ -429,7 +429,7 @@ class TheApp < Sinatra::Base
 
 
   get '/hourly_ping' do
-    puts "!!!!!!!!!!!!!!!!!!HOURLY PING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "------------------HOURLY PING---------------------------------------"
     puts where = 'HOURLY PING'
     a = Array.new
 
@@ -448,7 +448,7 @@ class TheApp < Sinatra::Base
 
 
   get '/daily_refresh' do
-    puts "!!!!!!!!!!!!!!!!DAILY REFRESH!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "==================DAILY REFRESH====================================="
     puts where = 'DAILY REFRESH'
     a = Array.new
 
