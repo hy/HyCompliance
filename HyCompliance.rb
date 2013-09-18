@@ -169,7 +169,7 @@ class TheApp < Sinatra::Base
         uri = URI.parse(ENV['REDISTOGO_URL'])
         REDIS = Redis.new(:host => uri.host, :port => uri.port,
                           :password => uri.password)
-        REDIS.set('CacheStatus', '[OK!]  Redis #{uri}')
+        REDIS.set('CacheStatus', "[OK!]  Redis #{uri}")
         puts REDIS.get('CacheStatus')
       rescue Exception => e;  puts "[BAD] Redis config: #{e.message}";  end
     end
@@ -434,6 +434,7 @@ class TheApp < Sinatra::Base
     a = Array.new
 
     begin
+      REDIS.incr('HoursOfUptime')
 
       #DO HOURLY CHECKS HERE
 
@@ -453,6 +454,7 @@ class TheApp < Sinatra::Base
     a = Array.new
 
     begin
+     REDIS.incr('DaysOfUptime')
 
      #DO DAILY UPKEEP TASKS HERE
 
