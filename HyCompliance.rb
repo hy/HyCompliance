@@ -118,7 +118,7 @@ class TheApp < Sinatra::Base
         require 'neography'
 
         neo4j_uri = URI ( ENV['NEO4J_URL'] )
-        neo = Neography::Rest.new(neo4j_uri.to_s)
+        $neo = Neography::Rest.new(neo4j_uri.to_s)
 
         http = Net::HTTP.new(neo4j_uri.host, neo4j_uri.port)
         verification_req = Net::HTTP::Get.new(neo4j_uri.request_uri)
@@ -132,7 +132,7 @@ class TheApp < Sinatra::Base
 
         # console access via: heroku addons:open neo4j
 
-        puts("[OK!]  Neo4j Configured at: #{neo4j_uri}")
+        puts("[OK!]  Neo:#{neo4j_uri},:#{neo4j_uri.user}:#{neo4j_uri.password}")
       rescue Exception => e;  puts "[BAD] Neo4j config: #{e.message}";  end
     end
 
