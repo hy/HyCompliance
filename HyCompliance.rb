@@ -132,7 +132,7 @@ class TheApp < Sinatra::Base
 
         # console access via: heroku addons:open neo4j
 
-        puts("[OK!]  Neo:#{neo4j_uri},:#{neo4j_uri.user}:#{neo4j_uri.password}")
+        puts("[OK!]  Neo #{neo4j_uri},:#{neo4j_uri.user}:#{neo4j_uri.password}")
       rescue Exception => e;  puts "[BAD] Neo4j config: #{e.message}";  end
     end
 
@@ -169,7 +169,7 @@ class TheApp < Sinatra::Base
         uri = URI.parse(ENV['REDISTOGO_URL'])
         REDIS = Redis.new(:host => uri.host, :port => uri.port,
                           :password => uri.password)
-        REDIS.set('CacheStatus', '[OK!]  Redis Configured')
+        REDIS.set('CacheStatus', '[OK!]  Redis #{ENV['REDISTOGO_URL']}')
         puts REDIS.get('CacheStatus')
       rescue Exception => e;  puts "[BAD] Redis config: #{e.message}";  end
     end
