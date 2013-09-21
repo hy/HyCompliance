@@ -1137,14 +1137,14 @@ class TheApp < Sinatra::Base
 
 
   #############################################################################
-  # Final / "Trap" route: (should catch every SMS that is not a known command)
+  # Final / "Trap" routes: 
   #
   # Also:  Of course, if we do not know what the user meant, we should tell 
   # them we could not understand their text message.  
   # 
   #############################################################################
   get '/c/*' do |text|
-    puts 'UNIVERSAL CATCH-ALL TRAPPING ROUTE'
+    puts 'SMS CATCH-ALL TRAPPING ROUTE'
     reply_via_SMS('Sorry :/ I could not understand that. Maybe check your card or text the word HELP? Also for some commands the exact #of digits is the key')
     doc = {
       'Who' => params['From'],
@@ -1153,6 +1153,31 @@ class TheApp < Sinatra::Base
     }
     DB['unrouted'].insert(doc)
   end #do get
+
+
+  get '/*' do |text|
+    puts 'UNIVERSAL CATCH-ALL TRAPPING FOR ALL UNEXPECTED USER GETs'
+    doc = {
+      'Who' => params['From'],
+      'What' => text,
+      'utc' => Time.now.to_f
+    }
+    DB['unexpected'].insert(doc)
+  end #do get
+
+
+  post '/*' do |text|
+    puts 'UNIVERSAL CATCH-ALL TRAPPING FOR ALL UNEXPECTED USER POSTs'
+    doc = {
+      'Who' => params['From'],
+      'What' => text,
+      'utc' => Time.now.to_f
+    }
+    DB['unexpected'].insert(doc)
+  end #do get
+
+
+
 
   #############################################################################
   #                  END OF THE ROUTING SECTION OF THE APP                    #
