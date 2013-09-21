@@ -144,7 +144,7 @@ class TheApp < Sinatra::Base
         CN = Mongo::Connection.new
         DB = CN.db
 
-        puts('[OK!]  Mongo URI Connection Configured via single env var')
+        puts("[OK!]  Mongo Configured-via-URI #{CN.host_port} #{CN.auths}")
       rescue Exception => e;  puts "[BAD] Mongo config(1): #{e.message}";  end
     end
 
@@ -246,8 +246,12 @@ class TheApp < Sinatra::Base
   # to scale . . . 
   #
   #############################################################################
-  
-  graph "BloodGlucose", :prefix => '/graphs' do
+ 
+
+  # For Example, to view this graph, nav to: 
+  #  http://pacific-ridge-7904.herokuapp.com/plot/bloodglucose.svg
+ 
+  graph "bloodglucose", :prefix => '/plot' do
     cursor = DB['checkins'].find({'mg' => {'$exists' => true}})
     bg_a = Array.new
     cursor.each{ |d|
@@ -768,7 +772,7 @@ class TheApp < Sinatra::Base
   #############################################################################
   # Set a new goal and notify both patient and caregiver
   #############################################################################
-  get /\/c\/stop/ do
+  get /\/c\/resign/ do
   puts 'CAREGIVER RESIGNATION ROUTE'
   begin
     DB['groups'].remove( {"CaregiverID"=>params['From']} )
@@ -779,7 +783,7 @@ class TheApp < Sinatra::Base
     log_exception( e, 'CAREGIVER RESIGNATION ROUTE' )
   end
     reply_via_SMS( msg )
-  end #do stop
+  end #do resign
 
 
   #############################################################################
@@ -1483,7 +1487,6 @@ class TheApp < Sinatra::Base
 
 
 
-
     ###########################################################################
     # Helper: Glucose-checkin database interactions
     # Give bonus points for a bg check 2-3 hours after the last meal
@@ -1504,7 +1507,7 @@ class TheApp < Sinatra::Base
       interval_in_hours = last_c==nil ? 0 : (@now_f - last_c['utc']) / ONE_HOUR
       pts +=10.0 if ((interval_in_hours > 1.9)&&(interval_in_hours < 3.6))
       
-      DB['textbacks'].remove({'ID' => params['From']}) if (interval_in_hours < 0.2)
+      DB['textbacks'].remove({'ID'=>params['From']}) if (interval_in_hours<0.2)
 
       last_g = last_glucose_lvl_for( params['From'] )
       g_interval_in_hours = last_g==nil ? 0 : (@now_f - last_g['utc'])/ONE_HOUR
@@ -1513,7 +1516,7 @@ class TheApp < Sinatra::Base
         time_of_last_checkin = 'not found'
       else
         if (last_g['mg'] < @this_user['lo'])
-          msg_all_caregivers('Your child just rechecked, latest BG: ' +mgdl.to_s)
+          msg_all_caregivers('Your child just rechecked, latest BG: '+mgdl.to_s)
           if ((interval_in_hours > 0.00)&&(interval_in_hours < 0.6))
             pts +=10.0
           end
