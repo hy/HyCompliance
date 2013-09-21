@@ -410,10 +410,11 @@ class TheApp < Sinatra::Base
   #############################################################################
 
   get '/ten_minute_heartbeat' do
-    puts ".................TEN MINUTE HEARTBEAT..............................."
     puts where = 'HEARTBEAT'
 
     begin
+      REDIS.incr('Heartbeats')
+
       cursor = DB['textbacks'].find()
       cursor.each { |r|
         if ( Time.now.to_f > (60.0 * 12.0 + r['utc']) )
@@ -421,6 +422,9 @@ class TheApp < Sinatra::Base
           DB['textbacks'].remove({'ID' => r['ID']})
         end #if
       }
+    
+      h = REDIS.get('Heartbeats')
+      puts ".................HEARTBEAT #{h} COMPLETE.........................."
 
     rescue Exception => e
       msg = 'Could not complete ten minute heartbeat'
@@ -433,7 +437,6 @@ class TheApp < Sinatra::Base
 
 
   get '/hourly_ping' do
-    puts "------------------HOURLY PING---------------------------------------"
     puts where = 'HOURLY PING'
     a = Array.new
 
@@ -441,6 +444,9 @@ class TheApp < Sinatra::Base
       REDIS.incr('HoursOfUptime')
 
       #DO HOURLY CHECKS HERE
+
+      h = REDIS.get('HoursOfUptime')
+      puts "------------------HOURLY PING #{h} COMPLETE ----------------------"
 
     rescue Exception => e
       msg = 'Could not complete hourly ping'
@@ -453,7 +459,6 @@ class TheApp < Sinatra::Base
 
 
   get '/daily_refresh' do
-    puts "==================DAILY REFRESH====================================="
     puts where = 'DAILY REFRESH'
     a = Array.new
 
@@ -461,6 +466,9 @@ class TheApp < Sinatra::Base
      REDIS.incr('DaysOfUptime')
 
      #DO DAILY UPKEEP TASKS HERE
+
+      d = REDIS.get('DaysOfUptime')
+      puts "==================DAILY REFRESH #{d} COMPLETE ===================="
 
     rescue Exception => e
       msg = 'Could not complete daily refresh'
