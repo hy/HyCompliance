@@ -1,5 +1,9 @@
-# TODO List: 
-
+# TODO List:
+#
+# [--] Enable and Test broadcast to all caregivers
+# [--] Enable and Test broadcast to all patients
+# [--] Enable and Test broadcast to everyone
+# [--] Enable and Test broadcast to dev's
 
 
 ###############################################################################
@@ -779,6 +783,53 @@ class TheApp < Sinatra::Base
 
 
   #############################################################################
+  # Stop all msgs and take this user out of all of the collections
+  # If either patient or caregiver issues this command, dis-enroll BOTH
+  #############################################################################
+  get /\/c\/stop/ do
+  puts 'STOP ROUTE'
+
+  begin
+    DB['groups'].remove( {"CaregiverID"=>params['From']} )
+    DB['groups'].remove( {"PatientID"=>params['From']} )
+    DB['people'].remove( {"ID"=>params['From']} )
+    msg = 'OK! -- stopping all interactions and dis-enrolling both parties'
+    msg +=' (Re-register to re-activate)'
+  rescue Exception => e
+    msg = 'Could not stop scheduled texts'
+    log_exception( e, 'STOP ROUTE' )
+  end
+    reply_via_SMS( msg )
+  end #do resign
+
+
+  #############################################################################
+  # Delete all checkin data for this user in the system
+  #############################################################################
+  get /\/c\/delete/ do
+  puts 'DELETE ROUTE'
+
+  begin
+    authorization_string = params['From']
+
+    if authorization_string.match(/\+1\d{10}\z/) == nil
+      msg = 'Phone Number should be of the form: +16505551234'
+    else
+      DB['checkins'].remove({'ID' => authorization_string})
+      msg = 'Wiped out checkin history for: '+authorization_string
+    end
+
+  rescue Exception => e
+    msg = 'Could not delete all checkins'
+    log_exception( e, 'DELETE ROUTE' )
+  end
+
+  msg
+
+  end #do reset
+
+
+  #############################################################################
   # Set a new goal and notify both patient and caregiver
   #############################################################################
   get /\/c\/resign/ do
@@ -871,6 +922,28 @@ class TheApp < Sinatra::Base
     reply_via_SMS( msg )
   end #do hi settings
 
+  get /\/c\/age[\s:\.,-=]*(\d{2})\z/ do
+  begin
+    key = params[:captures][0]
+    puts "SETTINGS ROUTE FOR: " + key
+    new_f = Float(params[:captures][1])
+
+    ph_num = patient_ph_num_assoc_wi_caller
+    record = DB['people'].find_one({'_id' => ph_num})
+    id = record['_id']
+    DB['people'].update({'_id' => id},
+                        {"$set" => {key => new_f}})
+    msg = 'New '+key.to_s+': ' + new_f.to_s + ' years'
+
+  rescue Exception => e
+    msg = 'Could not update setting for '+key.to_s
+    log_exception( e, 'AGE SETTING ROUTE' )
+  end
+
+    send_SMS_to( ph_num, msg ) if ph_num != params['From']
+    reply_via_SMS( msg )
+  end #do hi settings
+
   get /\/c\/(alarm)[\s:\.,-=]*(\d{1})\z/ do
   begin
     key = params[:captures][0]
@@ -888,7 +961,7 @@ class TheApp < Sinatra::Base
 
   rescue Exception => e
     msg = 'Could not update setting for '+key.to_s
-    log_exception( e, 'PANIC SETTING ROUTE' )
+    log_exception( e, 'ALARM SETTING ROUTE' )
   end
 
     send_SMS_to( ph_num, msg ) if ph_num != params['From']
@@ -1482,6 +1555,42 @@ class TheApp < Sinatra::Base
         puts "Texting" + r['CaregiverID']
         puts "With msg: " + msg
       end 
+    end #def
+
+    ###########################################################################
+    # Helper: Globally message ALL caregivers in the study
+    ###########################################################################
+    def global_caregiver_broadcast (msg)
+      mapped_to = DB['groups'].find({ 'CaregiverID' => {'$exists' => true} })
+      mapped_to.each do |r|
+        send_SMS_to(r['CaregiverID'], msg)
+        puts "Texting" + r['CaregiverID']
+        puts "With msg: " + msg
+      end
+    end #def
+
+    ###########################################################################
+    # Helper: Message all patients in the study who are in at least one group
+    ###########################################################################
+    def global_patients_with_caregivers_broadcast (msg)
+      mapped_to = DB['groups'].find({ 'PatientID' => {'$exists' => true} })
+      mapped_to.each do |r|
+        send_SMS_to(r['PatientID'], msg)
+        puts "Texting" + r['PatientID']
+        puts "With msg: " + msg
+      end
+    end #def
+
+    ###########################################################################
+    # Helper: Message everyone in the study, period 
+    ###########################################################################
+    def global_broadcast (msg)
+      mapped_to = DB['people'].find({ 'ID' => {'$exists' => true} })
+      mapped_to.each do |r|
+        send_SMS_to(r['ID'], msg)
+        puts "Texting" + r['ID']
+        puts "With msg: " + msg
+      end
     end #def
 
     ###########################################################################
