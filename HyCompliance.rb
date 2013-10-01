@@ -1,9 +1,12 @@
 # TODO List:
-#
+
 # [--] Enable and Test broadcast to all caregivers
 # [--] Enable and Test broadcast to all patients
 # [--] Enable and Test broadcast to everyone
 # [--] Enable and Test broadcast to dev's
+
+# [--] Enable a way for parents to invite other parents
+# [--] Think of a way for kids to invite kids
 
 
 ###############################################################################
@@ -76,7 +79,6 @@ class TheApp < Sinatra::Base
 
   configure do
     begin
-
       PTS_FOR_BG = 10
       PTS_FOR_INS = 5
       PTS_FOR_CARB = 5
@@ -784,7 +786,7 @@ class TheApp < Sinatra::Base
 
   #############################################################################
   # Stop all msgs and take this user out of all of the collections
-  # If either patient or caregiver issues this command, dis-enroll BOTH
+  # (If either patient or caregiver issues this command, dis-enroll BOTH)
   #############################################################################
   get /\/c\/stop/ do
   puts 'STOP ROUTE'
@@ -799,6 +801,7 @@ class TheApp < Sinatra::Base
     msg = 'Could not stop scheduled texts'
     log_exception( e, 'STOP ROUTE' )
   end
+
     reply_via_SMS( msg )
   end #do resign
 
@@ -824,19 +827,18 @@ class TheApp < Sinatra::Base
     log_exception( e, 'DELETE ROUTE' )
   end
 
-  msg
-
+    reply_via_SMS( msg )
   end #do reset
 
 
   #############################################################################
-  # Set a new goal and notify both patient and caregiver
+  # Remove a caregiver from the groups collection to stop notices to them
   #############################################################################
   get /\/c\/resign/ do
   puts 'CAREGIVER RESIGNATION ROUTE'
   begin
     DB['groups'].remove( {"CaregiverID"=>params['From']} )
-    msg = 'Stopped notifications. '
+    msg = 'Stopped your notifications. '
     msg += '(Type: ' + params['From'] + ' from patient phone to re-activate)'
   rescue Exception => e
     msg = 'Could not resign caregiver from updates'
@@ -1406,7 +1408,7 @@ class TheApp < Sinatra::Base
     ###########################################################################
     # Helper: Speakable Time Interval given float (and optional preamble)
     ###########################################################################
-    def speakable_interval_for( preamble=' ', float_representing_hours )
+    def speakable_hour_interval_for( preamble=' ', float_representing_hours )
       where = "HELPER: " + (__method__).to_s
       begin
         msg_start = preamble
